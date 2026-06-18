@@ -438,8 +438,8 @@
     <script>
         // 初始化 Supabase
         const SUPABASE_URL = "https://wyycauakphfsvkiypllh.supabase.co";
-        const SUPABASE_ANON_KEY = "sb_publishable_tIRmeLwn00iggumBtRlbzg_Z-yv9ole";
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind5eWNhdWFrcGhmc3ZraXlwbGxoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MjE2MzMsImV4cCI6MjA5NzI5NzYzM30.-7WsBsPmI3uS25LtcZtIB2NUqq8olnw273ljGqNN64o";
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentUser = null;
         let booksData = [];
