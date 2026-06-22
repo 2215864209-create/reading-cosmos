@@ -910,6 +910,13 @@
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
+    .auth-btn {
+    border: none;
+    border-radius: 10px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 13px;
+}
     </style>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
@@ -923,7 +930,31 @@
             <div class="brand-subtitle">点亮每一颗思想星球，凝练自洽的认知史诗。</div>
         </div>
         <div class="header-right">
-            <div class="universe-counter" id="global-counter">🌈 已探索 0 本书</div>
+            <div style="
+        display:flex;
+        align-items:center;
+        gap:12px;
+        justify-content:flex-end;
+        margin-bottom:10px;
+    ">
+
+        <div class="universe-counter" id="global-counter">
+            🌈 已探索 0 本书
+        </div>
+
+        <div id="auth-area">
+
+           <button class="auth-btn" onclick="showLogin()">
+    登录
+</button>
+
+<button class="auth-btn" onclick="showRegister()">
+    注册
+</button>
+
+        </div>
+
+    </div>
             <div class="nav-container">
                 <button class="nav-btn active" onclick="switchView('shelf')">书架模式</button>
                 <button class="nav-btn" onclick="switchView('cosmos')">阅读宇宙</button>
@@ -1165,6 +1196,129 @@ window.supabase.createClient(
 
 console.log('Supabase Client Ready');
 
+// =============================
+// 注册
+// =============================
+
+async function showRegister() {
+
+    const email = prompt("请输入邮箱");
+
+    if (!email) return;
+
+    const password = prompt("请输入密码（至少6位）");
+
+    if (!password) return;
+
+    const { error } =
+    await supabaseClient.auth.signUp({
+        email,
+        password
+    });
+
+    if (error) {
+
+        alert(error.message);
+
+        return;
+    }
+
+    alert("注册成功");
+
+    await checkLoginStatus();
+}
+
+// =============================
+// 登录
+// =============================
+
+async function showLogin() {
+
+    const email = prompt("请输入邮箱");
+
+    if (!email) return;
+
+    const password = prompt("请输入密码");
+
+    if (!password) return;
+
+    const { error } =
+    await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+    });
+
+    if (error) {
+
+        alert(error.message);
+
+        return;
+    }
+
+    alert("登录成功");
+
+    await checkLoginStatus();
+}
+
+// =============================
+// 退出
+// =============================
+
+async function logoutUser() {
+
+    await supabaseClient.auth.signOut();
+
+    await checkLoginStatus();
+}
+
+// =============================
+// 检查登录状态
+// =============================
+
+async function checkLoginStatus() {
+
+    const {
+        data: { user }
+    } = await supabaseClient.auth.getUser();
+
+    const authArea =
+    document.getElementById('auth-area');
+
+    if (!authArea) return;
+
+    if (user) {
+
+        authArea.innerHTML = `
+            <span style="
+                font-size:12px;
+                color:#666;
+            ">
+                👤 ${user.email}
+            </span>
+
+            <button onclick="logoutUser()">
+                退出
+            </button>
+        `;
+
+    } else {
+
+        authArea.innerHTML = `
+            <button onclick="showLogin()">
+                登录
+            </button>
+
+            <button onclick="showRegister()">
+                注册
+            </button>
+        `;
+    }
+}
+
+// =============================
+// Supabase连接测试
+// =============================
+
 (async () => {
 
     const {
@@ -1179,6 +1333,8 @@ console.log('Supabase Client Ready');
             error
         }
     );
+
+    await checkLoginStatus();
 
 })();
         const SEED_BOOKS = [
