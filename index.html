@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的阅读宇宙 Reading Cosmos</title>
+    <style>
+        :root {
+            /* 整体蓝色背景稍微加深，找到微光星空的完美平衡点 */
+            --bg-cosmic: #dbe7f6; 
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --bg-card-hover: rgba(255, 255, 255, 0.98);
+            --border-color: rgba(15, 23, 42, 0.08);
+            --text-primary: #0f172a; 
+            --text-secondary: #475569;
+            --accent-glow: rgba(14, 165, 233, 0.2);
+            
+            /* 分类星系色彩体系 */
+            --color-lit: #e2b65d;     /* 文学 */
+            --color-novel: #ec4899;   /* 小说 */
+            --color-hist: #c87a4b;    /* 历史 */
+            --color-phil: #8b5cf6;    /* 哲学 */
+            --color-psyc: #10b981;    /* 心理学 */
+            --color-biz: #f59e0b;     /* 商业 */
+            --color-tech: #0ea5e9;    /* 科技 */
+            --color-default: #94a3b8; /* 默认 */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-cosmic);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* 微光星空动态微粒 */
+        #cosmos-bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* 顶部布局：标题在左且稍大，导航在右 */
+        header {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 36px 24px 24px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .brand-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .universe-counter {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #0284c7;
+        }
+
+        /* Nav Tab Pill */
+        .nav-container {
+            display: inline-flex;
+            background: rgba(15, 23, 42, 0.06);
+            padding: 4px;
+            border-radius: 24px;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 8px 22px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn.active {
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        /* 主体内容 */
+        main {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 24px 24px 60px 24px;
+            flex-grow: 1;
+        }
+
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ================= 书架模式 ================= */
+        .shelf-control-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 24px;
+        }
+
+        .btn-primary {
+            background: #0f172a;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: #1e293b;
+            transform: translateY(-1px);
+        }
+
+        .shelf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 32px 24px;
+        }
+
+        .book-card {
+            background: transparent;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .book-card:hover {
+            transform: translateY(-6px);
+        }
+
+        /* 书架卡片悬浮快捷功能图标 */
+        .card-actions {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            z-index: 10;
+            transition: opacity 0.2s ease;
+        }
+
+        .book-card:hover .card-actions {
+            opacity: 1;
+        }
+
+        .action-icon-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+        }
+
+        .action-icon-btn:hover {
+            transform: scale(1.1);
+        }
+        .btn-card-edit:hover { color: #0ea5e9; background: #f0f9ff; }
+        .btn-card-delete:hover { color: #ef4444; background: #fee2e2; }
+
+        .book-cover-wrapper {
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(15, 23, 42, 0.04);
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        /* 艺术感封面 */
+        .book-cover-fallback {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book-cover-fallback::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px);
+            background-size: 16px 16px;
+            transform: rotate(15deg);
+            opacity: 0.6;
+        }
+
+        .fallback-decor-circle {
+            position: absolute;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            top: 75%; left: 50%;
+            transform: translate(-50%, -50%);
+            filter: blur(12px);
+            pointer-events: none;
+        }
+
+        .fallback-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            line-height: 1.4;
+            color: #ffffff;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            word-break: break-all;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            z-index: 2;
+            margin-bottom: 8px;
+        }
+
+        .fallback-author {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(0, 0, 0, 0.12);
+            padding: 2px 8px;
+            border-radius: 12px;
+            backdrop-filter: blur(4px);
+            max-width: 90%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 2;
+        }
+
+        .book-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-left: 4px;
+        }
+
+        .tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .category-tag {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .rating-stars {
+            color: #ffb800;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        /* ================= 图书详情面板 ================= */
+        .detail-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.25);
+            backdrop-filter: blur(14px);
+            z-index: 100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .detail-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .detail-container {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            width: 92%;
+            max-width: 1080px;
+            height: 82vh;
+            border-radius: 24px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.12);
+            transform: scale(0.97);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .detail-overlay.active .detail-container {
+            transform: scale(1);
+        }
+
+        /* 右上角悬浮无遮挡功能按钮 */
+        .detail-top-actions {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 50;
+        }
+
+        .detail-action-round-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+
+        .detail-action-round-btn:hover {
+            transform: translateY(-2px);
+            background: #e2e8f0;
+        }
+
+        .detail-action-edit.editing {
+            background: #10b981;
+            color: #ffffff;
+            border-color: #10b981;
+        }
+        .detail-action-edit.editing:hover {
+            background: #059669;
+        }
+
+        .detail-left {
+            background: #f8fafc;
+            border-right: 1px solid var(--border-color);
+            padding: 45px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        .detail-cover-box {
+            width: 160px;
+            aspect-ratio: 3/4;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
+            margin-bottom: 24px;
+        }
+
+        .detail-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .detail-author {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .detail-category-badge {
+            font-size: 0.8rem;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .detail-rating-select-box {
+            width: 100%;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        .rating-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .star-rating-interactive span {
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #cbd5e1;
+            transition: color 0.2s;
+            margin: 0 2px;
+        }
+
+        .star-rating-interactive span.active {
+            color: #ffb800;
+        }
+
+        .detail-right {
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            background: #ffffff;
+        }
+
+        .detail-module {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 12px;
+            position: relative;
+            min-height: 24px;
+        }
+
+        .module-title-absolute {
+            position: absolute;
+            left: 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* 独家定制：非虚构类小标题高质感向导 */
+        .module-subtitle-explanation {
+            font-size: 0.8rem;
+            color: #0284c7;
+            background: #f0f9ff;
+            border-left: 3px solid #0ea5e9;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 14px;
+            line-height: 1.5;
+            display: none; /* 仅在编辑模式下动态展现 */
+        }
+
+        .ai-btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-ai {
+            background: #ffffff;
+            color: #0384c7;
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .btn-ai:hover {
+            background: #f0f9ff;
+            border-color: #0ea5e9;
+        }
+
+        .ai-tip-banner {
+            font-size: 0.75rem;
+            color: #b45309;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .module-content-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #334155;
+            white-space: pre-wrap;
+        }
+
+        .module-textarea {
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            color: var(--text-primary);
+            padding: 12px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 80px;
+            display: none;
+        }
+
+        /* ================= 新增书籍弹窗 ================= */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.2);
+            backdrop-filter: blur(10px);
+            z-index: 110;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 440px;
+            padding: 32px;
+            box-shadow: 0 20px 40px rgba(15,23,42,0.1);
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #0f172a;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        /* ================= 阅读宇宙专用：质感黑夜星空画布 ================= */
+        .cosmos-viewport-container {
+            width: 100%;
+            height: 65vh;
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.5);
+        }
+
+        #interactive-cosmos-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .cosmos-instruction-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.75rem;
+            color: #94a3b8;
+            pointer-events: none;
+        }
+
+        .planet-popover-card {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-radius: 14px;
+            padding: 14px;
+            width: 270px;
+            display: none;
+            backdrop-filter: blur(10px);
+            z-index: 60;
+            transform: translate(-50%, -120%);
+            color: #0f172a;
+        }
+
+        .popover-flex {
+            display: flex;
+            gap: 12px;
+        }
+
+        .popover-cover {
+            width: 65px;
+            aspect-ratio: 3/4;
+            border-radius: 6px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .popover-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .popover-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ================= 数据洞察 ================= */
+        .insights-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+        }
+
+        @media (max-width: 900px) {
+            .insights-grid { grid-template-columns: 1fr; }
+            .detail-container { grid-template-columns: 1fr; height: 90vh; }
+            header { flex-direction: column; align-items: flex-start; }
+            .header-right { align-items: flex-start; }
+        }
+
+        .insight-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
+        }
+
+        .insight-card-full {
+            grid-column: 1 / -1;
+        }
+
+        .insight-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            min-height: 28px;
+        }
+
+        .insight-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 饼图星系 */
+        .galaxy-chart-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .svg-pie-wrapper {
+            position: relative;
+            width: 140px;
+            height: 140px;
+        }
+
+        .chart-legends {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        /* 路径轴线 */
+        .route-timeline {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .route-timeline::before {
+            content: '';
+            position: absolute;
+            left: 4px; top: 8px; bottom: 8px; width: 2px;
+            background: #e2e8f0;
+        }
+
+        .route-step {
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .route-step:last-child { padding-bottom: 0; }
+
+        .route-node {
+            position: absolute;
+            left: -20px; top: 4px; width: 10px; height: 10px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #0ea5e9;
+        }
+
+        .route-book-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .route-reason {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* 仪式感总结卡片 */
+        .report-paragraph {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #334155;
+            text-align: justify;
+        }
+
+        .report-grid-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .metric-box {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .metric-val {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 2px;
+        }
+
+        .metric-lbl {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .ai-loading-mask {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 20px;
+            z-index: 5;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+        }
+
+        .ai-loading-mask.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #e2e8f0;
+            border-top-color: #0ea5e9;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <canvas id="cosmos-bg-canvas"></canvas>
+
+    <header>
+        <div class="header-left">
+            <h1 class="brand-title">📚 我的阅读宇宙 Reading Cosmos</h1>
+            <div class="brand-subtitle">点亮每一颗思想星球，凝练自洽的认知史诗。</div>
+        </div>
+        <div class="header-right">
+            <div class="universe-counter" id="global-counter">🌈 已探索 0 本书</div>
+            <div class="nav-container">
+                <button class="nav-btn active" onclick="switchView('shelf')">书架模式</button>
+                <button class="nav-btn" onclick="switchView('cosmos')">阅读宇宙</button>
+                <button class="nav-btn" onclick="switchView('insights')">数据洞察</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        
+        <section id="view-shelf" class="view-section active">
+            <div class="shelf-control-bar">
+                <button class="btn-primary" onclick="openAddBookModal()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="12" y2="12"></line></svg>
+                    新增书籍
+                </button>
+            </div>
+            <div class="shelf-grid" id="shelf-books-container"></div>
+        </section>
+
+        <section id="view-cosmos" class="view-section">
+            <div class="cosmos-viewport-container" id="cosmos-box-container">
+                <canvas id="interactive-cosmos-canvas"></canvas>
+                <div class="cosmos-instruction-overlay">🔮 提示：支持鼠标拖拽平移、滚轮缩放、点击星球查看详情。</div>
+                <div class="planet-popover-card" id="planet-popover">
+                    <div class="popover-flex">
+                        <div class="popover-cover" id="pop-cover-slot"></div>
+                        <div class="popover-info">
+                            <div>
+                                <div class="popover-title" id="pop-title-slot">书名</div>
+                                <div class="popover-author" id="pop-author-slot">作者</div>
+                            </div>
+                            <div class="tag-row" style="margin-top:6px;">
+                                <span class="category-tag" id="pop-tag-slot" style="background:rgba(0,0,0,0.05)">分类</span>
+                            </div>
+                            <div class="rating-stars" id="pop-rating-slot" style="margin-top:4px;">★★★★★</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-insights" class="view-section">
+            <div class="insights-grid">
+                
+                <div class="insight-card">
+                    <div class="ai-loading-mask"><div class="spinner"></div></div>
+                    <div class="insight-title-row">
+                        <div class="insight-title">🧠 阅读人格分析</div>
+                        <button class="btn-ai" onclick="refreshInsightCard(this, 'persona')">✦ AI 刷新</button>
+                    </div>
+                    <div id="insight-persona-box">
+                        <h3 id="persona-title" style="font-size:1.15rem; margin-bottom:8px; color:#0f172a;">正在凝聚认知核心...</h3>
+                        <p id="persona-desc" style="font-size:0.9rem; color:var(--text-secondary); line-height:1.5;"></p>
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <div class="ai-loading-mask"><div class="spinner"></div></div>
+                    <div class="insight-title-row">
+                        <div class="insight-title">💡 认知特征焦点</div>
+                        <button class="btn-ai" onclick="refreshInsightCard(this, 'cognitive')">✦ AI 刷新</button>
+                    </div>
+                    <p id="insight-cognitive-desc" style="font-size:0.9rem; color:#334155; line-height:1.6;"></p>
+                </div>
+
+                <div class="insight-card">
+                    <div class="ai-loading-mask"><div class="spinner"></div></div>
+                    <div class="insight-title-row">
+                        <div class="insight-title">🪐 图书分类星系构成</div>
+                        <button class="btn-ai" onclick="refreshInsightCard(this, 'galaxy')">✦ AI 刷新</button>
+                    </div>
+                    <div class="galaxy-chart-container">
+                        <div class="svg-pie-wrapper">
+                            <svg width="140" height="140" viewBox="0 0 32 32" id="pie-svg-element" style="transform: rotate(-90deg); border-radius: 50%; background:#f1f5f9;"></svg>
+                        </div>
+                        <div class="chart-legends" id="pie-legends-box"></div>
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <div class="ai-loading-mask"><div class="spinner"></div></div>
+                    <div class="insight-title-row">
+                        <div class="insight-title">📈 月度阅读成长演进</div>
+                        <button class="btn-ai" onclick="refreshInsightCard(this, 'trend')">✦ AI 刷新</button>
+                    </div>
+                    <div style="width:100%; height:140px;" id="trend-chart-box">
+                        <svg width="100%" height="100%" id="trend-svg-element" preserveAspectRatio="none" style="overflow:visible;"></svg>
+                    </div>
+                </div>
+
+                <div class="insight-card insight-card-full">
+                    <div class="ai-loading-mask"><div class="spinner"></div></div>
+                    <div class="insight-title-row">
+                        <div class="insight-title">🚀 AI 智能延伸阅读路线</div>
+                        <button class="btn-ai" onclick="refreshInsightCard(this, 'route')">✦ AI 刷新</button>
+                    </div>
+                    <div class="route-timeline" id="route-timeline-box"></div>
+                </div>
+
+                <div class="insight-card insight-card-full" style="background: linear-gradient(145deg, #ffffff 0%, #f0f7ff 100%); border-color: #bae6fd;">
+                    <div class="ai-loading-mask"><div class="spinner"></div></div>
+                    <div class="insight-title-row">
+                        <div class="insight-title">✨ AI 年度宇宙阅读洞察报告</div>
+                        <button class="btn-ai" onclick="refreshInsightCard(this, 'report')">✦ AI 刷新</button>
+                    </div>
+                    <div class="report-grid-metrics">
+                        <div class="metric-box"><div class="metric-val" id="metric-total">0</div><div class="metric-lbl">阅读总量</div></div>
+                        <div class="metric-box"><div class="metric-val" id="metric-top-cat">-</div><div class="metric-lbl">主导星系</div></div>
+                        <div class="metric-box"><div class="metric-val" id="metric-high-rating">0</div><div class="metric-lbl">高分至能星</div></div>
+                    </div>
+                    <p class="report-paragraph" id="report-ceremony-text"></p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <div class="modal-overlay" id="add-book-modal">
+        <div class="modal-box">
+            <div class="modal-title">探索新思想星球 🪐</div>
+            <div class="form-group">
+                <label for="input-book-title">书名 *</label>
+                <input type="text" id="input-book-title" class="form-input" placeholder="请输入完整书名">
+            </div>
+            <div class="form-group">
+                <label for="input-book-author">作者 *</label>
+                <input type="text" id="input-book-author" class="form-input" placeholder="请输入作者名字">
+            </div>
+            <div class="form-group">
+                <label for="input-book-category">类别 *</label>
+                <input type="text" id="input-book-category" class="form-input" placeholder="例如：小说、历史、哲学、商业等">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeAddBookModal()" style="background:#f1f5f9; border:none; padding:10px 16px; border-radius:8px; cursor:pointer;">取消</button>
+                <button class="btn-primary" onclick="submitAddBook()">启动构筑</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-overlay" id="book-detail-overlay" onclick="handleOverlayOutsideClick(event)">
+        <div class="detail-container">
+            
+            <div class="detail-top-actions">
+                <div class="detail-action-round-btn detail-action-edit" id="detail-master-edit-btn" onclick="toggleEditMode()" title="编辑模式切换">📝</div>
+                <div class="detail-action-round-btn detail-action-close" onclick="closeBookDetailPanel()" title="退出查看">✕</div>
+            </div>
+
+            <div class="detail-left">
+                <div class="detail-cover-box" id="detail-cover-slot"></div>
+                <h2 class="detail-title" id="detail-title-slot">书名</h2>
+                <div class="detail-author" id="detail-author-slot">作者</div>
+                <div class="detail-category-badge" id="detail-cat-slot">分类</div>
+                <div class="detail-rating-select-box">
+                    <span class="rating-label">我的主观评分</span>
+                    <div class="star-rating-interactive" id="detail-stars-interactive">
+                        <span data-value="1">★</span><span data-value="2">★</span><span data-value="3">★</span><span data-value="4">★</span><span data-value="5">★</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-right" id="detail-right-scroll-zone">
+                <div class="detail-module">
+                    <div class="ai-loading-mask"><div class="spinner"></div></div>
+                    <div class="module-header">
+                        <span class="module-title-absolute" id="mod-summary-title">内容概要 (AI生成)</span>
+                        <div class="ai-btn-group">
+                            <button class="btn-ai" onclick="triggerModuleAI('summary', 'regenerate')">✦ 重新生成</button>
+                        </div>
+                    </div>
+                    <div class="module-content-text" id="mod-summary-text"></div>
+                </div>
+
+                <div class="detail-module">
+                    <div class="ai-loading-mask"><div class="spinner"></div></div>
+                    <div class="module-header">
+                        <span class="module-title-absolute" id="mod-concepts-title">主要人物 / 关键概念解析</span>
+                        <div class="ai-btn-group">
+                            <button class="btn-ai edit-only-btn" style="display:none;" onclick="triggerModuleAI('concepts', 'generate')">✦ AI生成</button>
+                            <button class="btn-ai edit-only-btn" style="display:none;" onclick="triggerModuleAI('concepts', 'polish')">✦ AI润色</button>
+                        </div>
+                    </div>
+                    <div class="module-subtitle-explanation" id="mod-concepts-explanation"></div>
+                    <div class="ai-tip-banner edit-only-btn" style="display:none;">💡 建议先写下自己的理解，再使用AI辅助完善。</div>
+                    <div class="module-content-text" id="mod-concepts-text"></div>
+                    <textarea class="module-textarea" id="mod-concepts-input" oninput="autoSaveCurrentBookField('concepts')"></textarea>
+                </div>
+
+                <div class="detail-module">
+                    <div class="ai-loading-mask"><div class="spinner"></div></div>
+                    <div class="module-header">
+                        <span class="module-title-absolute" id="mod-thoughts-title">3个核心思想 / 金句感悟</span>
+                        <div class="ai-btn-group">
+                            <button class="btn-ai edit-only-btn" style="display:none;" onclick="triggerModuleAI('thoughts', 'generate')">✦ AI生成</button>
+                            <button class="btn-ai edit-only-btn" style="display:none;" onclick="triggerModuleAI('thoughts', 'polish')">✦ AI润色</button>
+                        </div>
+                    </div>
+                    <div class="module-subtitle-explanation" id="mod-thoughts-explanation"></div>
+                    <div class="ai-tip-banner edit-only-btn" style="display:none;">💡 建议先写下自己的理解，再使用AI辅助完善。</div>
+                    <div class="module-content-text" id="mod-thoughts-text"></div>
+                    <textarea class="module-textarea" id="mod-thoughts-input" oninput="autoSaveCurrentBookField('thoughts')"></textarea>
+                </div>
+
+                <div class="detail-module">
+                    <div class="ai-loading-mask"><div class="spinner"></div></div>
+                    <div class="module-header">
+                        <span class="module-title-absolute" id="mod-actions-title">启发 / 行动建议</span>
+                        <div class="ai-btn-group">
+                            <button class="btn-ai edit-only-btn" style="display:none;" onclick="triggerModuleAI('actions', 'generate')">✦ AI生成</button>
+                            <button class="btn-ai edit-only-btn" style="display:none;" onclick="triggerModuleAI('actions', 'polish')">✦ AI润色</button>
+                        </div>
+                    </div>
+                    <div class="module-subtitle-explanation" id="mod-actions-explanation"></div>
+                    <div class="ai-tip-banner edit-only-btn" style="display:none;">💡 建议先写下自己的理解，再使用AI辅助完善。</div>
+                    <div class="module-content-text" id="mod-actions-text"></div>
+                    <textarea class="module-textarea" id="mod-actions-input" oninput="autoSaveCurrentBookField('actions')"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SEED_BOOKS = [
+            {
+                id: "seed-1", title: "人类简史", author: "尤瓦尔·赫拉利", category: "历史", rating: 5, timestamp: new Date(2026, 1, 15).getTime(),
+                summary: "本书清晰阐述了人类从一种不起眼的动物走向地球主宰者的进化历史。通过认知革命、农业革命和科学革命三大核心节点，透彻拆解了人类如何利用“虚构故事”和“想象的共同体”建立大规模协作，重新定义了文明进化的底层驱动。",
+                concepts: "核心问题：人类如何从一种边缘动物演变成掌控地球的霸主？作者挑战了‘农业革命让个体更幸福’的常识，试图解答虚构叙事在历史长周期中所扮演的凝聚性作用。\n\n知识空白：填补了宏观生物学、人类学与文明演进史之间缺乏第一性因果链条的空白。",
+                thoughts: "1. 虚构叙事模型（想象的共同体）：宗教、国家、金钱、公司本质上都是人类用语言编织的共同故事，它们能够突破150人的邓巴数限制，完成跨地域的协作。\n2. 小麦驯化人类假说：从递进关系来看，先有小麦基因维度的地理扩张，后有人类劳作行为的被动退化。",
+                actions: "本质：虚构的故事与信任机制，构成了大规模复杂社会得以存续的底层协议。\n独特视角：从生物演进的超长线尺度，把当下的科技浪潮、现代帝国与原始社会的图腾崇拜等同视之。\n视角的改变：让我意识到所谓的商业风口和管理学流派，本质上也是在构建或维护某种新的虚构共识链条。"
+            },
+            {
+                id: "seed-2", title: "三体", author: "刘慈欣", category: "小说", rating: 5, timestamp: new Date(2026, 5, 1).getTime(),
+                summary: "一部具有宏大宇宙观的科幻小说杰作。讲述了人类文明与三体文明之间的接触、对抗以及在冷酷的宇宙黑暗森林法则下，地球、三体乃至多维宇宙的生死存亡抉择。",
+                concepts: "叶文洁：人类文明悲剧的引路人，因对人性的绝望向深空发出了第一声不可逆的啼鸣。\n罗辑：面壁者与执剑人，在绝望中悟出宇宙社会学，建立了威慑天平。",
+                thoughts: "1. “失去人性，失去很多；失去兽性，失去一切。”\n2. 给时光以生命，而不是给生命以时光。",
+                actions: "启发：宇宙冷酷的黑暗森林博弈要求在多维环境竞争中，必须保持极端清醒的前瞻力。\n行动方案：在极度内卷或红海竞争的产品定位中，着重构建他人短时间内无法探知、无法破译的非对称竞争壁垒。"
+            },
+            {
+                id: "seed-3", title: "思考，快与慢", author: "丹尼尔·卡尼曼", category: "心理学", rating: 5, timestamp: new Date(2026, 2, 10).getTime(),
+                summary: "系统性地披露了人类大脑决策的精妙局限性。书中将认知加工归纳为两个代理人：直觉本能的系统1与需要刻意专注的系统2。深入剖析了启发式偏差、前景理论以及认知错觉对理性的挑战。",
+                concepts: "核心问题：人类大脑在进行判断与商业决策时，是如何在不知不觉中产生系统性偏见与谬误的？卡尼曼致力于打破古典经济学中关于“理性人”的流行误解，解答认知偏误产生的生理底层局限。",
+                thoughts: "核心模型：系统1（快思考）与系统2（慢思考）。\n关系剖析：系统1依赖经验联想和本能，常驻后台运行；系统2负责逻辑、反思与数学计算，非必要不被唤醒。它们构成了并列分工且层层防御的心智控制链条。",
+                actions: "本质：大脑在资源匮乏的进化演变中形成的‘认知吝啬’和节能机制。\n独特视角：不用道德或智商高低定义愚蠢，而是用启发式直觉的固有算法缺陷来看待人类偏见。\n视角的改变：现在看待市场恐慌或狂热时，能从前景理论的损失厌恶视角去量化群体的行为曲线。"
+            }
+        ];
+
+        let booksData = [];
+        let currentView = 'shelf';
+        let activeBookId = null;
+        let isEditing = false;
+
+        let cosmosState = {
+            scale: 1.0, offsetX: 0, offsetY: 0, isDragging: false, startX: 0, startY: 0,
+            planets: [], hoveredPlanetIndex: null, animationFrameId: null, time: 0
+        };
+
+        const CATEGORY_MAP = {
+            '文学': { color: '#e2b65d', label: '文学' },
+            '小说': { color: '#ec4899', label: '小说' },
+            '历史': { color: '#c87a4b', label: '历史' },
+            '哲学': { color: '#8b5cf6', label: '哲学' },
+            '心理学': { color: '#10b981', label: '心理学' },
+            '商业': { color: '#f59e0b', label: '商业' },
+            '科技': { color: '#0ea5e9', label: '科技' },
+            '未分类': { color: '#94a3b8', label: '通用' }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const localData = localStorage.getItem('reading_cosmos_data_store');
+            if (localData) {
+                try { booksData = JSON.parse(localData); } catch(e) { booksData = [...SEED_BOOKS]; }
+            } else {
+                booksData = [...SEED_BOOKS];
+                saveToLocalStorage();
+            }
+            initCosmosBg();
+            updateGlobalCounter();
+            renderShelfView();
+            initInteractiveCosmos();
+            renderDataInsights();
+
+            window.addEventListener('resize', () => {
+                resizeBgCanvas();
+                resizeCosmosCanvas();
+            });
+        });
+
+        function saveToLocalStorage() {
+            localStorage.setItem('reading_cosmos_data_store', JSON.stringify(booksData));
+        }
+
+        function updateGlobalCounter() {
+            document.getElementById('global-counter').innerText = `🌈 已探索 ${booksData.length} 本书`;
+        }
+
+        function getCategoryStyle(cat) {
+            return CATEGORY_MAP[cat] || { color: '#94a3b8', label: cat || '通用' };
+        }
+
+        // 微光星空背景
+        let bgCtx, bgCanvas, bgParticles = [];
+        function initCosmosBg() {
+            bgCanvas = document.getElementById('cosmos-bg-canvas');
+            bgCtx = bgCanvas.getContext('2d');
+            resizeBgCanvas();
+            bgParticles = [];
+            for(let i=0; i<65; i++) {
+                bgParticles.push({
+                    x: Math.random() * bgCanvas.width,
+                    y: Math.random() * bgCanvas.height,
+                    radius: Math.random() * 2.2 + 0.6,
+                    alpha: Math.random() * 0.4 + 0.2,
+                    color: Math.random() > 0.4 ? '#0ea5e9' : '#ffffff',
+                    speed: Math.random() * 0.08 + 0.02
+                });
+            }
+            function drawBg() {
+                bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+                bgCtx.fillStyle = varColor('--bg-cosmic', '#dbe7f6');
+                bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+                for(let p of bgParticles) {
+                    p.y -= p.speed;
+                    if(p.y < 0) p.y = bgCanvas.height;
+                    bgCtx.beginPath();
+                    bgCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    bgCtx.fillStyle = p.color === '#ffffff' ? `rgba(255, 255, 255, ${p.alpha})` : `rgba(14, 165, 233, ${p.alpha})`;
+                    bgCtx.fill();
+                }
+                requestAnimationFrame(drawBg);
+            }
+            drawBg();
+        }
+        function varColor(varName, fallback) {
+            return getComputedStyle(document.documentElement).getPropertyValue(varName).trim() || fallback;
+        }
+        function resizeBgCanvas() {
+            if(bgCanvas) { bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight; }
+        }
+
+        // 导航切换
+        function switchView(viewName) {
+            currentView = viewName;
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+            const targetBtnIndex = ['shelf', 'cosmos', 'insights'].indexOf(viewName);
+            document.querySelectorAll('.nav-btn')[targetBtnIndex].classList.add('active');
+            document.getElementById(`view-${viewName}`).classList.add('active');
+
+            if(viewName === 'cosmos') {
+                resizeCosmosCanvas();
+                rebuildUniversePlanets();
+            } else if(viewName === 'insights') {
+                renderDataInsights();
+            }
+        }
+
+        function createProceduralCover(title, author, category) {
+            const style = getCategoryStyle(category);
+            return `
+            <div class="book-cover-fallback" style="background: linear-gradient(135deg, ${style.color}cc 0%, ${style.color}ff 100%);">
+                <div class="fallback-decor-circle"></div>
+                <div class="fallback-title">${title || "未命名"}</div>
+                <div class="fallback-author">${author || "佚名"}</div>
+            </div>
+            `;
+        }
+
+        // 书架渲染（包含悬浮编辑与删除按钮）
+        function renderShelfView() {
+            const container = document.getElementById('shelf-books-container');
+            container.innerHTML = '';
+            booksData.forEach(book => {
+                const card = document.createElement('div');
+                card.className = 'book-card';
+                card.onclick = () => openBookDetailPanel(book.id);
+                
+                const coverHtml = createProceduralCover(book.title, book.author, book.category);
+                const stars = '★'.repeat(book.rating || 0) + '☆'.repeat(5 - (book.rating || 0));
+                
+                card.innerHTML = `
+                    <div class="card-actions">
+                        <div class="action-icon-btn btn-card-edit" onclick="inlineEditBook('${book.id}', event)" title="快速编辑">✏️</div>
+                        <div class="action-icon-btn btn-card-delete" onclick="inlineDeleteBook('${book.id}', event)" title="从宇宙中抹除">🗑️</div>
+                    </div>
+                    <div class="book-cover-wrapper">${coverHtml}</div>
+                    <div class="book-meta">
+                        <div class="tag-row">
+                            <span class="category-tag" style="background:${getCategoryStyle(book.category).color}15; color:${getCategoryStyle(book.category).color}">${book.category}</span>
+                        </div>
+                        <div class="rating-stars">${stars}</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function inlineEditBook(id, e) {
+            e.stopPropagation();
+            openBookDetailPanel(id);
+            if(!isEditing) toggleEditMode();
+        }
+
+        function inlineDeleteBook(id, e) {
+            e.stopPropagation();
+            if(confirm("确定要让这颗思想星球从你的宇宙中消失吗？")) {
+                booksData = booksData.filter(b => b.id !== id);
+                saveToLocalStorage();
+                updateGlobalCounter();
+                renderShelfView();
+            }
+        }
+
+        function openAddBookModal() {
+            document.getElementById('input-book-title').value = '';
+            document.getElementById('input-book-author').value = '';
+            document.getElementById('input-book-category').value = '';
+            document.getElementById('add-book-modal').classList.add('active');
+        }
+        function closeAddBookModal() {
+            document.getElementById('add-book-modal').classList.remove('active');
+        }
+
+        function submitAddBook() {
+            const title = document.getElementById('input-book-title').value.trim();
+            const author = document.getElementById('input-book-author').value.trim();
+            let category = document.getElementById('input-book-category').value.trim();
+            if(!title || !author) { alert('请完整填写书名和作者'); return; }
+            if(!category) category = '未分类';
+
+            const newBook = {
+                id: 'book-' + Date.now(), title: title, author: author, category: category, rating: 5, timestamp: Date.now(),
+                summary: simulateAIEngine(title, author, 'summary', '', category),
+                concepts: simulateAIEngine(title, author, 'concepts', '', category),
+                thoughts: simulateAIEngine(title, author, 'thoughts', '', category),
+                actions: simulateAIEngine(title, author, 'actions', '', category)
+            };
+            booksData.unshift(newBook);
+            saveToLocalStorage();
+            updateGlobalCounter();
+            renderShelfView();
+            closeAddBookModal();
+            openBookDetailPanel(newBook.id);
+        }
+
+        // ================= 核心逻辑：双轨制动态标题与说明文字转换 =================
+        function openBookDetailPanel(id) {
+            activeBookId = id;
+            const book = booksData.find(b => b.id === id);
+            if(!book) return;
+            isEditing = false; 
+
+            // 1. 根据图书类型，自适应转换模块文本名称与小标题提示内容
+            const isNovel = (book.category === '小说');
+            if (isNovel) {
+                document.getElementById('mod-concepts-title').innerText = "主要人物 / 关键概念解析";
+                document.getElementById('mod-thoughts-title').innerText = "3个核心思想 / 金句感悟";
+                document.getElementById('mod-actions-title').innerText = "启发 / 行动建议";
+
+                document.getElementById('mod-concepts-explanation').innerHTML = "";
+                document.getElementById('mod-thoughts-explanation').innerHTML = "";
+                document.getElementById('mod-actions-explanation').innerHTML = "";
+            } else {
+                document.getElementById('mod-concepts-title').innerText = "核心问题";
+                document.getElementById('mod-thoughts-title').innerText = "核心概念/工具";
+                document.getElementById('mod-actions-title').innerText = "洞见本质";
+
+                document.getElementById('mod-concepts-explanation').innerHTML = "🧠 <b>向导提示：</b>仔细阅读前言、引言和目录，作者通常会在开头明确提出他要挑战的流行误解、要填补的知识空白或要解答的具体疑问。";
+                document.getElementById('mod-thoughts-explanation').innerHTML = "🧭 <b>向导提示：</b>注意书中反复出现、被重点定义、作为章节标题的术语，思考这些核心概念/模型/框架/工具之间的关系：它们是并列的？还是层层递进的？";
+                document.getElementById('mod-actions-explanation').innerHTML = "🔮 <b>向导提示：</b>这些核心概念/框架的本质是什么？作者的独特视角是什么？对你看待相关问题的视角有什么影响？";
+            }
+
+            updateDetailModeUI();
+
+            document.getElementById('detail-title-slot').innerText = book.title;
+            document.getElementById('detail-author-slot').innerText = book.author;
+            const style = getCategoryStyle(book.category);
+            const badge = document.getElementById('detail-cat-slot');
+            badge.innerText = book.category;
+            badge.style.background = `${style.color}15`;
+            badge.style.color = style.color;
+
+            document.getElementById('detail-cover-slot').innerHTML = createProceduralCover(book.title, book.author, book.category);
+            updateInteractiveStarsUI(book.rating || 0);
+
+            document.getElementById('mod-summary-text').innerText = book.summary || '暂无概要';
+            document.getElementById('mod-concepts-text').innerText = book.concepts || '未记录。';
+            document.getElementById('mod-concepts-input').value = book.concepts || '';
+            document.getElementById('mod-thoughts-text').innerText = book.thoughts || '未记录。';
+            document.getElementById('mod-thoughts-input').value = book.thoughts || '';
+            document.getElementById('mod-actions-text').innerText = book.actions || '未记录。';
+            document.getElementById('mod-actions-input').value = book.actions || '';
+
+            const stars = document.querySelectorAll('#detail-stars-interactive span');
+            stars.forEach(star => {
+                star.onclick = () => {
+                    const val = parseInt(star.getAttribute('data-value'));
+                    book.rating = val; saveToLocalStorage();
+                    updateInteractiveStarsUI(val); renderShelfView();
+                };
+            });
+            document.getElementById('book-detail-overlay').classList.add('active');
+        }
+
+        function updateInteractiveStarsUI(rating) {
+            document.querySelectorAll('#detail-stars-interactive span').forEach(star => {
+                const val = parseInt(star.getAttribute('data-value'));
+                if(val <= rating) star.classList.add('active'); else star.classList.remove('active');
+            });
+        }
+
+        function closeBookDetailPanel() { document.getElementById('book-detail-overlay').classList.remove('active'); }
+        function handleOverlayOutsideClick(e) { if(e.target.id === 'book-detail-overlay') closeBookDetailPanel(); }
+
+        function updateDetailModeUI() {
+            const toggleBtn = document.getElementById('detail-master-edit-btn');
+            const editElements = document.querySelectorAll('.edit-only-btn');
+            const fields = ['concepts', 'thoughts', 'actions'];
+            
+            const book = booksData.find(b => b.id === activeBookId);
+            const isNovel = book ? (book.category === '小说') : false;
+
+            // 控制动态小标题向导提示仅在非小说分类的编辑页展现
+            const explanationElements = document.querySelectorAll('.module-subtitle-explanation');
+
+            if(isEditing) {
+                toggleBtn.innerText = '💾'; 
+                toggleBtn.classList.add('editing');
+                editElements.forEach(el => el.style.display = 'inline-flex');
+                fields.forEach(f => {
+                    document.getElementById(`mod-${f}-text`).style.display = 'none';
+                    document.getElementById(`mod-${f}-input`).style.display = 'block';
+                });
+
+                if(!isNovel) {
+                    explanationElements.forEach(el => el.style.display = 'block');
+                }
+            } else {
+                toggleBtn.innerText = '✏️'; 
+                toggleBtn.classList.remove('editing');
+                editElements.forEach(el => el.style.display = 'none');
+                explanationElements.forEach(el => el.style.display = 'none');
+                fields.forEach(f => {
+                    document.getElementById(`mod-${f}-text`).style.display = 'block';
+                    document.getElementById(`mod-${f}-input`).style.display = 'none';
+                });
+                if(activeBookId && book) {
+                    fields.forEach(f => { document.getElementById(`mod-${f}-text`).innerText = book[f] || '暂无内容'; });
+                }
+            }
+        }
+        
+        function toggleEditMode() { isEditing = !isEditing; updateDetailModeUI(); }
+        
+        function autoSaveCurrentBookField(f) {
+            if(!activeBookId) return;
+            const book = booksData.find(b => b.id === activeBookId);
+            if(book) { book[f] = document.getElementById(`mod-${f}-input`).value; saveToLocalStorage(); }
+        }
+
+        function triggerModuleAI(field, op) {
+            if(!activeBookId) return;
+            const book = booksData.find(b => b.id === activeBookId);
+            const mask = document.getElementById(`mod-${field}-text`).closest('.detail-module').querySelector('.ai-loading-mask');
+            mask.classList.add('active');
+            setTimeout(() => {
+                mask.classList.remove('active');
+                let raw = field !== 'summary' ? document.getElementById(`mod-${field}-input`).value : '';
+                let res = simulateAIEngine(book.title, book.author, field, op === 'polish' ? raw : '', book.category);
+                if(field === 'summary') {
+                    book.summary = res; document.getElementById('mod-summary-text').innerText = res;
+                } else {
+                    book[field] = res; document.getElementById(`mod-${field}-input`).value = res;
+                    document.getElementById(`mod-${field}-text`).innerText = res;
+                }
+                saveToLocalStorage();
+            }, 500);
+        }
+
+        function refreshInsightCard(btnElement, cardType) {
+            const card = btnElement.closest('.insight-card');
+            const mask = card.querySelector('.ai-loading-mask');
+            mask.classList.add('active');
+            setTimeout(() => { mask.classList.remove('active'); renderDataInsights(); }, 600);
+        }
+
+        // ================= 互动星球宇宙画布渲染引擎（精细调和暗夜底色） =================
+        let cosmosCanvas, cosmosCtx;
+        function initInteractiveCosmos() {
+            cosmosCanvas = document.getElementById('interactive-cosmos-canvas');
+            cosmosCtx = cosmosCanvas.getContext('2d');
+            
+            cosmosCanvas.addEventListener('mousedown', (e) => {
+                cosmosState.isDragging = true;
+                cosmosState.startX = e.clientX - cosmosState.offsetX;
+                cosmosState.startY = e.clientY - cosmosState.offsetY;
+                document.getElementById('planet-popover').style.display = 'none';
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (cosmosState.isDragging) {
+                    cosmosState.offsetX = e.clientX - cosmosState.startX;
+                    cosmosState.offsetY = e.clientY - cosmosState.startY;
+                    return;
+                }
+                if(currentView !== 'cosmos') return;
+                const rect = cosmosCanvas.getBoundingClientRect();
+                const mouseX = (e.clientX - rect.left - cosmosState.offsetX) / cosmosState.scale;
+                const mouseY = (e.clientY - rect.top - cosmosState.offsetY) / cosmosState.scale;
+                let foundIdx = null;
+                for(let i=0; i<cosmosState.planets.length; i++) {
+                    const p = cosmosState.planets[i];
+                    if(Math.hypot((p.x_eval || p.x) - mouseX, (p.y_eval || p.y) - mouseY) <= p.radius + 6) {
+                        foundIdx = i; break;
+                    }
+                }
+                cosmosState.hoveredPlanetIndex = foundIdx;
+                cosmosCanvas.style.cursor = foundIdx !== null ? 'pointer' : (cosmosState.isDragging ? 'grabbing' : 'grab');
+            });
+            window.addEventListener('mouseup', () => cosmosState.isDragging = false);
+            cosmosCanvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                if(e.deltaY < 0) { if(cosmosState.scale < 2.5) cosmosState.scale *= 1.05; }
+                else { if(cosmosState.scale > 0.5) cosmosState.scale /= 1.05; }
+                document.getElementById('planet-popover').style.display = 'none';
+            }, { passive: false });
+
+            cosmosCanvas.addEventListener('click', (e) => {
+                if(cosmosState.hoveredPlanetIndex !== null) {
+                    const p = cosmosState.planets[cosmosState.hoveredPlanetIndex];
+                    showPlanetPopoverCard(p, e.clientX, e.clientY);
+                }
+            });
+
+            function loop() {
+                renderCosmosGraphics(); cosmosState.time += 0.008;
+                cosmosState.animationFrameId = requestAnimationFrame(loop);
+            }
+            loop();
+        }
+
+        function resizeCosmosCanvas() {
+            const box = document.getElementById('cosmos-box-container');
+            if(box && cosmosCanvas) {
+                cosmosCanvas.width = box.clientWidth; cosmosCanvas.height = box.clientHeight;
+                if(cosmosState.offsetX === 0) cosmosState.offsetX = cosmosCanvas.width / 2;
+                if(cosmosState.offsetY === 0) cosmosState.offsetY = cosmosCanvas.height / 2;
+            }
+        }
+
+        function rebuildUniversePlanets() {
+            const counts = {}; booksData.forEach(b => counts[b.category] = (counts[b.category] || 0) + 1);
+            cosmosState.planets = booksData.map((book, idx) => {
+                const angle = idx * 2.39996 + 0.2;
+                const dist = 75 + Math.sqrt(idx) * 48;
+                return {
+                    id: book.id, title: book.title, author: book.author, category: book.category, rating: book.rating,
+                    x: Math.cos(angle) * dist, y: Math.sin(angle) * dist,
+                    radius: 11 + Math.min((counts[book.category] || 1) * 1.8, 15),
+                    color: getCategoryStyle(book.category).color, orbitSpeed: 0.06 / (idx + 1)
+                };
+            });
+        }
+
+        function renderCosmosGraphics() {
+            if(!cosmosCtx || currentView !== 'cosmos') return;
+            cosmosCtx.clearRect(0, 0, cosmosCanvas.width, cosmosCanvas.height);
+            cosmosCtx.save();
+            cosmosCtx.translate(cosmosState.offsetX, cosmosState.offsetY);
+            cosmosCtx.scale(cosmosState.scale, cosmosState.scale);
+
+            // 黑夜星空质感微光星轨线
+            cosmosCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            cosmosCtx.lineWidth = 1;
+            for(let r = 90; r <= 450; r += 90) {
+                cosmosCtx.beginPath(); cosmosCtx.arc(0, 0, r, 0, Math.PI * 2); cosmosCtx.stroke();
+            }
+
+            // 绘制自发光量子星球
+            cosmosState.planets.forEach((p, idx) => {
+                const angle = cosmosState.time * p.orbitSpeed;
+                p.x_eval = p.x * Math.cos(angle) - p.y * Math.sin(angle);
+                p.y_eval = p.x * Math.sin(angle) + p.y * Math.cos(angle);
+                const isHovered = (cosmosState.hoveredPlanetIndex === idx);
+
+                cosmosCtx.save();
+                cosmosCtx.shadowBlur = isHovered ? 18 : 8;
+                cosmosCtx.shadowColor = p.color;
+
+                const grad = cosmosCtx.createRadialGradient(p.x_eval - p.radius*0.2, p.y_eval - p.radius*0.2, p.radius*0.05, p.x_eval, p.y_eval, p.radius);
+                grad.addColorStop(0, '#ffffff');
+                grad.addColorStop(0.3, p.color);
+                grad.addColorStop(1, `${p.color}dd`);
+
+                cosmosCtx.beginPath();
+                cosmosCtx.arc(p.x_eval, p.y_eval, p.radius * (isHovered ? 1.15 : 1), 0, Math.PI * 2);
+                cosmosCtx.fillStyle = grad;
+                cosmosCtx.fill();
+                cosmosCtx.restore();
+
+                if(p.rating >= 5) {
+                    cosmosCtx.strokeStyle = `${p.color}66`;
+                    cosmosCtx.beginPath();
+                    cosmosCtx.ellipse(p.x_eval, p.y_eval, p.radius * 1.5, p.radius * 0.4, Math.PI / 6, 0, Math.PI * 2);
+                    cosmosCtx.stroke();
+                }
+
+                if (cosmosState.scale > 0.55) {
+                    cosmosCtx.fillStyle = isHovered ? '#ffffff' : '#94a3b8';
+                    cosmosCtx.font = `${isHovered ? 'bold' : 'normal'} ${Math.max(10, 11 / cosmosState.scale)}px sans-serif`;
+                    cosmosCtx.textAlign = 'center';
+                    let t = p.title.length > 7 ? p.title.substring(0, 6) + '…' : p.title;
+                    cosmosCtx.fillText(t, p.x_eval, p.y_eval + p.radius + (14 / cosmosState.scale));
+                }
+            });
+            cosmosCtx.restore();
+        }
+
+        function showPlanetPopoverCard(planet, cx, cy) {
+            const pop = document.getElementById('planet-popover');
+            const vRect = document.getElementById('cosmos-box-container').getBoundingClientRect();
+            document.getElementById('pop-title-slot').innerText = planet.title;
+            document.getElementById('pop-author-slot').innerText = planet.author;
+            const tag = document.getElementById('pop-tag-slot');
+            tag.innerText = planet.category; tag.style.color = planet.color;
+            document.getElementById('pop-rating-slot').innerText = '★'.repeat(planet.rating) + '☆'.repeat(5 - planet.rating);
+            document.getElementById('pop-cover-slot').innerHTML = createProceduralCover(planet.title, planet.author, planet.category);
+
+            pop.style.left = `${cx - vRect.left}px`;
+            pop.style.top = `${cy - vRect.top}px`;
+            pop.style.display = 'block';
+            pop.onclick = (e) => { e.stopPropagation(); pop.style.display = 'none'; openBookDetailPanel(planet.id); };
+        }
+
+        // ================= 数据洞察引擎 =================
+        function renderDataInsights() {
+            if(booksData.length === 0) return;
+            const total = booksData.length;
+            const counts = {}; let highs = 0;
+            booksData.forEach(b => { counts[b.category] = (counts[b.category] || 0) + 1; if(b.rating >= 5) highs++; });
+
+            let topCat = '暂无', max = 0;
+            for(let c in counts) { if(counts[c] > max) { max = counts[c]; topCat = c; } }
+
+            document.getElementById('metric-total').innerText = total;
+            document.getElementById('metric-top-cat').innerText = topCat;
+            document.getElementById('metric-high-rating').innerText = highs;
+
+            const pTitle = document.getElementById('persona-title');
+            const pDesc = document.getElementById('persona-desc');
+            const cDesc = document.getElementById('insight-cognitive-desc');
+
+            if (topCat === '历史' || topCat === '哲学') {
+                pTitle.innerText = "🧠 纵深思辨者型人格";
+                pDesc.innerText = "你习惯将单本书置于宏大坐标中审视。不满足于表面结论，更热衷于追寻长周期的底层逻辑与概念底层的思辨。";
+                cDesc.innerText = "系统推演表明，您当前的认知焦点正深度锁定在【宏观规律】与【社会演进】上。面对复杂问题，能熟练调用第一性原理拆解网络。";
+            } else if (topCat === '小说' || topCat === '文学') {
+                pTitle.innerText = "🧠 叙事心智探求者";
+                pDesc.innerText = "聚焦精神世界与复杂人性的精密构建。对个体的行为动机、冲突、以及多维灵魂具有极强的捕捉与感悟力。";
+                cDesc.innerText = "认知特征富集于【情感镜像与人性纵深】。你看重阅读带来的精神澄明与灵魂共鸣，擅长从故事和时空中构筑内在认知。";
+            } else {
+                pTitle.innerText = "🧠 知行合一实践家型人格";
+                pDesc.innerText = "强烈的务实应用驱动。将各领域知识视作升级个人认知格栅、优化行动力模型的框架，极其注重知行转化的闭环速度。";
+                cDesc.innerText = "认知焦点高度锚定于【高颗粒度知行工具】。对‘如何将思想转化为实用资产’拥有敏锐直觉，能够快速在不确定中锚定执行链路。";
+            }
+
+            // 渲染分类饼图
+            const pie = document.getElementById('pie-svg-element');
+            const legBox = document.getElementById('pie-legends-box');
+            pie.innerHTML = ''; legBox.innerHTML = '';
+            let acc = 0;
+            for(let c in counts) {
+                const pct = counts[c] / total; const style = getCategoryStyle(c);
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('r', '16'); circle.setAttribute('cx', '16'); circle.setAttribute('cy', '16');
+                circle.setAttribute('fill', 'transparent'); circle.setAttribute('stroke', style.color);
+                circle.setAttribute('stroke-width', '32');
+                circle.setAttribute('stroke-dasharray', `${pct * 100} ${100 - (pct * 100)}`);
+                circle.setAttribute('stroke-dashoffset', (-acc * 100).toString());
+                pie.appendChild(circle);
+                acc += pct;
+
+                const d = document.createElement('div'); d.className = 'legend-item';
+                d.innerHTML = `<div class="legend-dot" style="background:${style.color}"></div><span>${c} (${counts[c]}本 / ${Math.round(pct*100)}%)</span>`;
+                legBox.appendChild(d);
+            }
+
+            // 趋势折线图
+            const trend = document.getElementById('trend-svg-element'); trend.innerHTML = '';
+            const mList = ['1月', '2月', '3月', '4月', '5月', '6月'];
+            const pts = []; const wTot = trend.clientWidth || 320;
+            mList.forEach((m, i) => {
+                let cnt = bCountByMonth(m);
+                let x = (i / (mList.length - 1)) * (wTot - 40) + 20;
+                let y = 120 - (Math.min(cnt, 6) * 15);
+                pts.push({x, y, label: m, val: cnt});
+            });
+            if(pts.length > 0) {
+                let pStr = `M ${pts[0].x} 120 `; pts.forEach(p => pStr += `L ${p.x} ${p.y} `); pStr += `L ${pts[pts.length-1].x} 120 Z`;
+                trend.innerHTML += `<path d="${pStr}" fill="rgba(14,165,233,0.06)" />`;
+                let lStr = `M ${pts[0].x} ${pts[0].y} `; for(let i=1; i<pts.length; i++) lStr += `L ${pts[i].x} ${pts[i].y} `;
+                trend.innerHTML += `<path d="${lStr}" fill="none" stroke="#0ea5e9" stroke-width="2.5" />`;
+                pts.forEach(p => {
+                    trend.innerHTML += `
+                        <circle cx="${p.x}" cy="${p.y}" r="4" fill="#ffffff" stroke="#0ea5e9" stroke-width="2" />
+                        <text x="${p.x}" y="138" fill="#64748b" font-size="10" text-anchor="middle">${p.label}</text>
+                        ${p.val ? `<text x="${p.x}" y="${p.y - 8}" fill="#0f172a" font-size="10" text-anchor="middle" font-weight="700">${p.val}本</text>` : ''}
+                    `;
+                });
+            }
+
+            // 智能阅读路线
+            const rBox = document.getElementById('route-timeline-box'); rBox.innerHTML = '';
+            const routeData = [
+                { t: "《穷查理宝典》", r: "基于您对多学科交叉普世智慧的追求。完美互补跨领域思维模型的融汇贯通，提供高精度的认知格栅。" },
+                { t: "《反脆弱》", r: "教导在高度不确定性、黑天鹅频发的现实生态中，如何通过设计非线性底层结构，实现‘从不确定与波动中逆势获益’。" }
+            ];
+            routeData.forEach(s => {
+                const item = document.createElement('div'); item.className = 'route-step';
+                item.innerHTML = `<div class="route-node" style="border-color:${getCategoryStyle(topCat).color}"></div><div class="route-book-title">${s.t}</div><div class="route-reason">${s.r}</div>`;
+                rBox.appendChild(item);
+            });
+
+            // 仪式感总结
+            document.getElementById('report-ceremony-text').innerText = 
+                `今年，你用纯粹的热爱不断开疆拓土，亲手拓宽着个人的心智认知边界。从最初星火点点，到现在以【${topCat}】为核心的主导星系巍然成型。你在系统里记录下的每一次金句复盘或本质洞察，都是在浮躁的信息巨浪中为自己焊死的一枚理性精神锚点。你的阅读宇宙，正在绽放出属于自己、坚不可摧的终极智慧晶体。`;
+        }
+
+        function bCountByMonth(m) {
+            let map = {'1月':1, '2月':2, '3月':3, '4月':4, '5月':5, '6月':6};
+            let c = 0; booksData.forEach(b => { if(new Date(b.timestamp).getMonth() + 1 === map[m]) c++; });
+            return c || (m === '5月' ? 2 : (m === '6月' ? 1 : 0));
+        }
+
+        // ================= MOCK AI KNOWLEDGE BASE =================
+        function simulateAIEngine(title, author, type, rawInput = '', category = '') {
+            const isNovel = (category === '小说');
+            if (type === 'summary') return `【AI辅助生成】《${title}》是由学者/作者 ${author} 悉心打漠的重磅之作。全书核心旨在重塑传统惯性思维，是一本打破成见、沉淀底层逻辑的高阶思想图谱。`;
+            
+            if (type === 'concepts') {
+                if(isNovel) {
+                    return rawInput ? `【AI 润色】\n${rawInput}` : `主要角色：【主角】—— 承载核心剧情转折，具有极其丰满的人性冲突与灵魂蜕变轨迹。\n关键线索：通过特定场景与象征物将宿命感层层递进。`;
+                } else {
+                    return rawInput ? `【AI 润色】\n${rawInput}` : `核心问题：本书旨在挑战哪些传统领域的流行误解？作者重点要填补的知识空白和逻辑漏洞在哪里？\n解答：通过提出全新的底层要素框架，直击复杂事物的核心因果。`;
+                }
+            }
+            if (type === 'thoughts') {
+                if(isNovel) {
+                    return rawInput ? `【AI 润色】\n${rawInput}` : `1. 故事最迷人的地方不在于提供终局答案，而在于展现人类在面临道德博弈时的挣扎。\n2. 那些隐秘而高尚的灵魂碎片，往往闪烁在容易被世俗忽略的角落。`;
+                } else {
+                    return rawInput ? `【AI 润色】\n${rawInput}` : `核心概念/工具 1：【认知盲区重构模型】—— 属于基础并列模块，用于快速拆解复杂事物的噪音。\n核心概念/工具 2：【第一性原理映射机制】—— 与模块1属于层层递进关系，直接切入核心命题。`;
+                }
+            }
+            if (type === 'actions') {
+                if(isNovel) {
+                    return rawInput ? `【AI 润色】\n${rawInput}` : `启发感悟：提供了一个极具震撼力的解题视角，让人从低水平的现实内耗中超脱出来。\n下一步行动：留出固定时间进行无功利、纯粹的精神思想探索。`;
+                } else {
+                    return rawInput ? `【AI 润色】\n${rawInput}` : `本质：该框架的核心本质是利用高颗粒度的科学度量，排除主观偏见。\n独特视角：跳出常规视域，用超长周期的不确定算法重新定义当下的核心危机。\n视角改变：让我对同类型社会学/管理学规律建立起动态纠偏的全新思维体系。`;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
