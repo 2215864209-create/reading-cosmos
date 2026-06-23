@@ -1392,8 +1392,7 @@ async function syncBooksToSupabase() {
             );
         }
     }
-
-    alert('书籍同步完成');
+   
 }
 // =============================
 // 从Supabase加载书籍
@@ -1607,9 +1606,23 @@ async function loadBooksFromSupabase() {
     }
 );
 
-        function saveToLocalStorage() {
-            localStorage.setItem('reading_cosmos_data_store', JSON.stringify(booksData));
-        }
+        async function saveToLocalStorage() {
+
+    localStorage.setItem(
+        'reading_cosmos_data_store',
+        JSON.stringify(booksData)
+    );
+
+    const {
+        data: { user }
+    } = await supabaseClient.auth.getUser();
+
+    if (user) {
+
+        await syncBooksToSupabase();
+
+    }
+}
 
         function updateGlobalCounter() {
             document.getElementById('global-counter').innerText = `🌈 已探索 ${booksData.length} 本书`;
