@@ -939,17 +939,26 @@
     ">
 
         <div class="universe-counter" id="global-counter">
-            🌈 已探索 0 本书
-        </div>
+    🌈 已探索 0 本书
+</div>
 
-        <div id="auth-area">
+<div id="auth-area">
 
-           <button class="auth-btn" onclick="showLogin()">
-    登录
-</button>
+    <button class="auth-btn" onclick="showLogin()">
+        登录
+    </button>
 
-<button class="auth-btn" onclick="showRegister()">
-    注册
+    <button class="auth-btn" onclick="showRegister()">
+        注册
+    </button>
+
+</div>
+
+<button
+    class="auth-btn"
+    onclick="syncBooksToSupabase()"
+>
+    同步
 </button>
 
         </div>
@@ -1313,6 +1322,68 @@ async function checkLoginStatus() {
             </button>
         `;
     }
+}
+// =============================
+// 同步全部书籍到Supabase
+// =============================
+
+async function syncBooksToSupabase() {
+
+    const {
+        data: { user }
+    } = await supabaseClient.auth.getUser();
+
+    if (!user) {
+
+        alert('请先登录');
+
+        return;
+    }
+
+    console.log('开始同步书籍...');
+
+    for (const book of booksData) {
+
+        const { error } =
+        await supabaseClient
+            .from('books')
+            .insert({
+                user_id: user.id,
+
+                title: book.title || '',
+                author: book.author || '',
+                category: book.category || '',
+                rating: book.rating || 0,
+
+                summary: book.summary || '',
+                concepts: book.concepts || '',
+                thoughts: book.thoughts || '',
+                actions: book.actions || '',
+
+                timestamp: book.timestamp || Date.now(),
+
+                updated_at:
+                new Date().toISOString()
+            });
+
+        if (error) {
+
+            console.error(
+                '同步失败',
+                book.title,
+                error
+            );
+
+        } else {
+
+            console.log(
+                '已同步',
+                book.title
+            );
+        }
+    }
+
+    alert('书籍同步完成');
 }
 
 // =============================
