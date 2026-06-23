@@ -1395,7 +1395,85 @@ async function syncBooksToSupabase() {
 
     alert('书籍同步完成');
 }
+// =============================
+// 从Supabase加载书籍
+// =============================
 
+async function loadBooksFromSupabase() {
+
+    const {
+        data: { user }
+    } = await supabaseClient.auth.getUser();
+
+    if (!user) {
+
+        return false;
+
+    }
+
+    const {
+        data,
+        error
+    } = await supabaseClient
+        .from('books')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('timestamp', {
+            ascending: false
+        });
+
+    if (error) {
+
+        console.error(
+            '读取书籍失败',
+            error
+        );
+
+        return false;
+    }
+
+    booksData = data.map(book => ({
+
+        id:
+            book.source_book_id,
+
+        title:
+            book.title,
+
+        author:
+            book.author,
+
+        category:
+            book.category,
+
+        rating:
+            book.rating,
+
+        timestamp:
+            book.timestamp,
+
+        summary:
+            book.summary || '',
+
+        concepts:
+            book.concepts || '',
+
+        thoughts:
+            book.thoughts || '',
+
+        actions:
+            book.actions || ''
+
+    }));
+
+    console.log(
+        '已加载',
+        booksData.length,
+        '本书'
+    );
+
+    return true;
+}
 // =============================
 // Supabase连接测试
 // =============================
@@ -1463,25 +1541,71 @@ async function syncBooksToSupabase() {
             '未分类': { color: '#94a3b8', label: '通用' }
         };
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const localData = localStorage.getItem('reading_cosmos_data_store');
-            if (localData) {
-                try { booksData = JSON.parse(localData); } catch(e) { booksData = [...SEED_BOOKS]; }
-            } else {
-                booksData = [...SEED_BOOKS];
-                saveToLocalStorage();
-            }
-            initCosmosBg();
-            updateGlobalCounter();
-            renderShelfView();
-            initInteractiveCosmos();
-            renderDataInsights();
+        window.addEventListener(
+    'DOMContentLoaded',
+    async () => {
 
-            window.addEventListener('resize', () => {
+        const loaded =
+        await loadBooksFromSupabase();
+
+        if (!loaded) {
+
+            const localData =
+            localStorage.getItem(
+                'reading_cosmos_data_store'
+            );
+
+            if (localData) {
+
+                try {
+
+                    booksData =
+                    JSON.parse(localData);
+
+                } catch(e) {
+
+                    booksData =
+                    [...SEED_BOOKS];
+
+                }
+
+            } else {
+
+                booksData =
+                [...SEED_BOOKS];
+
+                localStorage.setItem(
+                    'reading_cosmos_data_store',
+                    JSON.stringify(
+                        booksData
+                    )
+                );
+            }
+        }
+
+        initCosmosBg();
+
+        updateGlobalCounter();
+
+        renderShelfView();
+
+        initInteractiveCosmos();
+
+        renderDataInsights();
+
+        window.addEventListener(
+            'resize',
+            () => {
+
                 resizeBgCanvas();
+
                 resizeCosmosCanvas();
-            });
-        });
+
+            }
+        );
+
+    }
+);
 
         function saveToLocalStorage() {
             localStorage.setItem('reading_cosmos_data_store', JSON.stringify(booksData));
