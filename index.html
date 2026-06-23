@@ -1345,31 +1345,37 @@ async function syncBooksToSupabase() {
     for (const book of booksData) {
 
         const { error } =
-        await supabaseClient
+       await supabaseClient
     .from('books')
-    .upsert({
+    .upsert(
+        {
 
-        source_book_id:
-            book.id || crypto.randomUUID(),
+            source_book_id:
+                book.id || crypto.randomUUID(),
 
-        user_id: user.id,
+            user_id: user.id,
 
-        title: book.title || '',
-        author: book.author || '',
-        category: book.category || '',
-        rating: book.rating || 0,
+            title: book.title || '',
+            author: book.author || '',
+            category: book.category || '',
+            rating: book.rating || 0,
 
-        summary: book.summary || '',
-        concepts: book.concepts || '',
-        thoughts: book.thoughts || '',
-        actions: book.actions || '',
+            summary: book.summary || '',
+            concepts: book.concepts || '',
+            thoughts: book.thoughts || '',
+            actions: book.actions || '',
 
-        timestamp: book.timestamp || Date.now(),
+            timestamp: book.timestamp || Date.now(),
 
-        updated_at:
-        new Date().toISOString()
+            updated_at:
+                new Date().toISOString()
 
-    });
+        },
+        {
+            onConflict:
+                'user_id,source_book_id'
+        }
+    );
         if (error) {
 
             console.error(
