@@ -2052,16 +2052,16 @@ async function showAIAnalysis() {
 
     });
 
-    if (error) {
+   if (error) {
 
-        console.error(error);
+    console.error(error);
 
-        alert(
-            'AI记录保存失败'
-        );
+    alert(
+        JSON.stringify(error)
+    );
 
-        return;
-    }
+    return;
+}
 
     alert(resultText);
 }
