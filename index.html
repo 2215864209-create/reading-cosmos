@@ -1994,6 +1994,17 @@ async function showAIAnalysis() {
 
     if (!activeBookId) return;
 
+    const {
+        data: { user }
+    } = await supabaseClient.auth.getUser();
+
+    if (!user) {
+
+        alert('请先登录');
+
+        return;
+    }
+
     const book =
     booksData.find(
         b => b.id === activeBookId
@@ -2001,26 +2012,58 @@ async function showAIAnalysis() {
 
     if (!book) return;
 
-    alert(
-`🤖 AI分析功能开发中
+    const promptText =
+`请分析《${book.title}》这本书的核心价值`;
 
-当前书籍：
-《${book.title}》
+    const resultText =
+`【AI模拟分析】
 
-未来将自动生成：
+《${book.title}》是一部值得深入阅读的作品。
 
-✅ 核心观点提炼
+核心价值：
+帮助读者建立更系统的认知框架。
 
-✅ 知识框架拆解
+关键启发：
+将书中的观点转化为现实行动。
 
-✅ 阅读摘要
+建议：
+选择一个观点，
+连续实践7天。`;
 
-✅ 行动建议
+    const { error } =
+    await supabaseClient
+    .from('ai_generations')
+    .insert({
 
-✅ AI阅读报告
+        user_id:
+            user.id,
 
-并自动保存到云端`
-    );
+        book_id:
+            book.id,
+
+        prompt:
+            promptText,
+
+        result:
+            resultText,
+
+        model:
+            'glm-4-flash'
+
+    });
+
+    if (error) {
+
+        console.error(error);
+
+        alert(
+            'AI记录保存失败'
+        );
+
+        return;
+    }
+
+    alert(resultText);
 }
 
         // ================= 互动星球宇宙画布渲染引擎（精细调和暗夜底色） =================
