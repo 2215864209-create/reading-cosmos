@@ -1267,8 +1267,15 @@ async function showLogin() {
     alert("登录成功");
 
     await checkLoginStatus();
-}
 
+    await loadBooksFromSupabase();
+
+    updateGlobalCounter();
+
+    renderShelfView();
+
+    renderDataInsights();
+}
 // =============================
 // 退出
 // =============================
@@ -1276,6 +1283,14 @@ async function showLogin() {
 async function logoutUser() {
 
     await supabaseClient.auth.signOut();
+
+    booksData = [...SEED_BOOKS];
+
+    updateGlobalCounter();
+
+    renderShelfView();
+
+    renderDataInsights();
 
     await checkLoginStatus();
 }
