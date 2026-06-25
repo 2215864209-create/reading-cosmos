@@ -1101,9 +1101,27 @@
         <div class="detail-container">
             
             <div class="detail-top-actions">
-                <div class="detail-action-round-btn detail-action-edit" id="detail-master-edit-btn" onclick="toggleEditMode()" title="编辑模式切换">📝</div>
-                <div class="detail-action-round-btn detail-action-close" onclick="closeBookDetailPanel()" title="退出查看">✕</div>
-            </div>
+
+    <div class="detail-action-round-btn detail-action-edit"
+         id="detail-master-edit-btn"
+         onclick="toggleEditMode()"
+         title="编辑模式切换">
+         📝
+    </div>
+
+    <div class="detail-action-round-btn"
+         onclick="showAIAnalysis()"
+         title="AI分析">
+         🤖
+    </div>
+
+    <div class="detail-action-round-btn detail-action-close"
+         onclick="closeBookDetailPanel()"
+         title="退出查看">
+         ✕
+    </div>
+
+</div>
 
             <div class="detail-left">
                 <div class="detail-cover-box" id="detail-cover-slot"></div>
@@ -1967,6 +1985,43 @@ async function loadBooksFromSupabase() {
             mask.classList.add('active');
             setTimeout(() => { mask.classList.remove('active'); renderDataInsights(); }, 600);
         }
+        
+// =============================
+// AI分析（V3.0 占位版）
+// =============================
+
+async function showAIAnalysis() {
+
+    if (!activeBookId) return;
+
+    const book =
+    booksData.find(
+        b => b.id === activeBookId
+    );
+
+    if (!book) return;
+
+    alert(
+`🤖 AI分析功能开发中
+
+当前书籍：
+《${book.title}》
+
+未来将自动生成：
+
+✅ 核心观点提炼
+
+✅ 知识框架拆解
+
+✅ 阅读摘要
+
+✅ 行动建议
+
+✅ AI阅读报告
+
+并自动保存到云端`
+    );
+}
 
         // ================= 互动星球宇宙画布渲染引擎（精细调和暗夜底色） =================
         let cosmosCanvas, cosmosCtx;
