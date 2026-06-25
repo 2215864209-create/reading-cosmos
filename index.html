@@ -2004,7 +2004,18 @@ async function loadBooksFromSupabase() {
             mask.classList.add('active');
             setTimeout(() => { mask.classList.remove('active'); renderDataInsights(); }, 600);
         }
-        
+// =============================
+// AI重新分析阅读宇宙
+// =============================
+
+function reAnalyzeUniverse() {
+
+    renderDataInsights();
+
+    alert(
+        '阅读宇宙已重新分析完成'
+    );
+}   
 // =============================
 // AI分析（V3.0 占位版）
 // =============================
