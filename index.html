@@ -1768,7 +1768,17 @@ async function loadBooksFromSupabase() {
             '科技': { color: '#0ea5e9', label: '科技' },
             '未分类': { color: '#94a3b8', label: '通用' }
         };
+function getCategoryStyle(cat) {
 
+    return CATEGORY_MAP[cat] || {
+
+        color: "#94a3b8",
+
+        label: cat || "未分类"
+
+    };
+
+}
         window.addEventListener(
     'DOMContentLoaded',
     async () => {
