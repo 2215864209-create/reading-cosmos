@@ -1889,32 +1889,51 @@ function getCategoryStyle(cat) {
 
         // 导航切换
         function switchView(viewName) {
-            currentView = viewName;
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
-            const targetBtnIndex = ['shelf', 'cosmos', 'insights'].indexOf(viewName);
-            document.querySelectorAll('.nav-btn')[targetBtnIndex].classList.add('active');
-            document.getElementById(`view-${viewName}`).classList.add('active');
 
-            if(viewName === 'cosmos') {
-                resizeCosmosCanvas();
-                rebuildUniversePlanets();
-            } else if(viewName === 'insights') {
-                renderDataInsights();
-            }
-        }
+    currentView = viewName;
 
-        function createProceduralCover(title, author, category) {
-            const style = getCategoryStyle(category);
-            return `
-            <div class="book-cover-fallback" style="background: linear-gradient(135deg, ${style.color}cc 0%, ${style.color}ff 100%);">
-                <div class="fallback-decor-circle"></div>
-                <div class="fallback-title">${title || "未命名"}</div>
-                <div class="fallback-author">${author || "佚名"}</div>
-            </div>
-            `;
-        }
+    document.querySelectorAll('.nav-btn')
+        .forEach(btn => btn.classList.remove('active'));
 
+    document.querySelectorAll('.view-section')
+        .forEach(sec => sec.classList.remove('active'));
+
+    const targetBtnIndex =
+        ['shelf', 'cosmos', 'insights']
+        .indexOf(viewName);
+
+    document.querySelectorAll('.nav-btn')[targetBtnIndex]
+        .classList.add('active');
+
+    document.getElementById(`view-${viewName}`)
+        .classList.add('active');
+
+    // ===== 新增 =====
+    if (viewName === 'shelf') {
+
+        updateGlobalCounter();
+
+        renderShelfView();
+
+    }
+
+    // ===== 原来的 =====
+    else if (viewName === 'cosmos') {
+
+        resizeCosmosCanvas();
+
+        rebuildUniversePlanets();
+
+    }
+
+    else if (viewName === 'insights') {
+
+        renderDataInsights();
+
+    }
+
+}
+        
         // 书架渲染（包含悬浮编辑与删除按钮）
         function renderShelfView() {
             const container = document.getElementById('shelf-books-container');
