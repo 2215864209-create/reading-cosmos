@@ -1061,40 +1061,38 @@
 
 </header>
 
-    <main>
-        
-        <section id="view-shelf" class="view-section active">
+   <main>
 
-    <div class="shelf-toolbar">
+    <section id="view-shelf" class="view-section active">
 
-        <div
-            class="universe-counter"
-            id="global-counter">
+        <div class="shelf-toolbar">
 
-            🌈 已探索 0 本
+            <div
+                class="universe-counter"
+                id="global-counter">
+
+                🌈 已探索 0 本
+
+            </div>
+
+            <button
+                class="btn-primary"
+                onclick="openAddBookModal()">
+
+                ＋ 新增书籍
+
+            </button>
 
         </div>
 
-        <button
-            class="btn-primary"
-            onclick="openAddBookModal()">
+        <div
+            class="shelf-grid"
+            id="shelf-books-container">
 
-            ＋ 新增书籍
+        </div>
 
-        </button>
-
-    </div>
-
-    <div
-        class="shelf-grid"
-        id="shelf-books-container">
-
-    </div>
-
-</section>
-            <div class="shelf-grid" id="shelf-books-container"></div>
-        </section>
-
+    </section>
+       
         <section id="view-cosmos" class="view-section">
             <div class="cosmos-viewport-container" id="cosmos-box-container">
                 <canvas id="interactive-cosmos-canvas"></canvas>
@@ -1143,8 +1141,6 @@
     </div>
 
     <div class="insights-grid">
-            <div class="insights-grid">
-                
                 <div class="insight-card">
                     <div class="ai-loading-mask"><div class="spinner"></div></div>
                     <div class="insight-title-row">
