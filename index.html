@@ -1598,13 +1598,32 @@ async function checkLoginStatus() {
     </span>
 
     <button
-        class="toolbar-btn"
-        onclick="showSettings()">
+    class="toolbar-btn"
+    onclick="showSettings()">
 
-        ⚙
-        <span>设置</span>
+    <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round">
 
-    </button>
+        <circle
+            cx="12"
+            cy="12"
+            r="3">
+        </circle>
+
+        <path d="M12 2.8l1 2.1a7.9 7.9 0 011.9.8l2.2-.8 1.8 3.1-1.5 1.8c.1.4.1.9.1 1.3s0 .9-.1 1.3l1.5 1.8-1.8 3.1-2.2-.8c-.6.3-1.2.6-1.9.8l-1 2.1h-3.6l-1-2.1a7.9 7.9 0 01-1.9-.8l-2.2.8-1.8-3.1 1.5-1.8a9 9 0 010-2.6L2.5 8l1.8-3.1 2.2.8c.6-.3 1.2-.6 1.9-.8l1-2.1z"/>
+
+    </svg>
+
+    <span>设置</span>
+
+</button>
 
     <button
         class="toolbar-btn logout-btn"
