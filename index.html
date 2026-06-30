@@ -874,10 +874,16 @@
 
         /* ================= 数据洞察 ================= */
         .insights-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 28px;
-        }
+
+    display:grid;
+
+    grid-template-columns:repeat(2,minmax(0,1fr));
+
+    gap:24px;
+
+    align-items:start;
+
+}
 
         @media (max-width: 900px) {
             .insights-grid { grid-template-columns: 1fr; }
@@ -886,37 +892,68 @@
             .header-right { align-items: flex-start; }
         }
 
-        .insight-card {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
-        }
+        .insight-card{
+
+    background:#fff;
+
+    border:1px solid rgba(15,23,42,.06);
+
+    border-radius:18px;
+
+    padding:22px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    position:relative;
+
+    transition:.25s;
+
+    box-shadow:0 2px 12px rgba(15,23,42,.03);
+
+}
+        .insight-card:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 10px 28px rgba(15,23,42,.08);
+
+}
 
         .insight-card-full {
             grid-column: 1 / -1;
         }
 
-        .insight-title-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 18px;
-            min-height: 28px;
-        }
+        .insight-title-row{
 
-        .insight-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #0f172a;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:20px;
+
+    min-height:32px;
+
+}
+
+        .insight-title{
+
+    font-size:16px;
+
+    font-weight:700;
+
+    color:#0f172a;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+}
 
         /* 饼图星系 */
         .galaxy-chart-container {
