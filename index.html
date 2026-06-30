@@ -1106,6 +1106,10 @@
 
 .report-actions{
 
+    width:100%;
+
+    grid-column:1 / -1;
+
     margin-top:8px;
 
     padding-top:8px;
@@ -1363,65 +1367,66 @@
 
                 <div class="insight-card insight-card-full" style="background: linear-gradient(145deg, #ffffff 0%, #f0f7ff 100%); border-color: #bae6fd;">
 
-    <div class="ai-loading-mask">
-        <div class="spinner"></div>
+  <div class="ai-loading-mask">
+    <div class="spinner"></div>
+</div>
+
+<div class="insight-title-row">
+    <div class="insight-title">
+        ✨ AI 年度宇宙阅读洞察报告
+    </div>
+</div>
+
+<div class="report-grid-metrics">
+
+    <div class="metric-box">
+        <div class="metric-val" id="metric-total">0</div>
+        <div class="metric-lbl">阅读总量</div>
     </div>
 
-    <div class="insight-title-row">
-        <div class="insight-title">
-            ✨ AI 年度宇宙阅读洞察报告
-        </div>
+    <div class="metric-box">
+        <div class="metric-val" id="metric-top-cat">-</div>
+        <div class="metric-lbl">主导星系</div>
     </div>
 
-    <div class="report-grid-metrics">
-
-        <div class="metric-box">
-            <div class="metric-val" id="metric-total">0</div>
-            <div class="metric-lbl">阅读总量</div>
-        </div>
-
-        <div class="metric-box">
-            <div class="metric-val" id="metric-top-cat">-</div>
-            <div class="metric-lbl">主导星系</div>
-        </div>
-
-        <div class="metric-box">
-            <div class="metric-val" id="metric-high-rating">0</div>
-            <div class="metric-lbl">高分至能星</div>
-        </div>
-
+    <div class="metric-box">
+        <div class="metric-val" id="metric-high-rating">0</div>
+        <div class="metric-lbl">高分至能星</div>
     </div>
 
-    <p class="report-paragraph" id="report-ceremony-text"></p>
+</div>
 
-    <!-- AI Report Footer -->
-    <div class="report-actions">
+<p class="report-paragraph" id="report-ceremony-text"></p>
 
-        <div class="report-divider"></div>
+</div>
+<!-- ↑ 到这里结束 AI 年度宇宙阅读洞察报告卡片 -->
 
-        <div class="report-footer-desc">
-            你的阅读宇宙仍在不断扩张。期待下一次 AI 为你发现新的星系。
-        </div>
+<!-- AI Report Footer -->
+<div class="report-actions">
 
-        <div class="report-action-buttons">
+    <div class="report-divider"></div>
 
-            <button
-                class="report-btn"
-                onclick="reAnalyzeUniverse()">
-                🔄 AI重新分析
-            </button>
+    <div class="report-footer-desc">
+        你的阅读宇宙仍在不断扩张。期待下一次 AI 为你发现新的星系。
+    </div>
 
-            <button
-                class="report-btn">
-                📄 导出报告
-            </button>
+    <div class="report-action-buttons">
 
-            <button
-                class="report-btn">
-                🔗 分享
-            </button>
+        <button
+            class="report-btn"
+            onclick="reAnalyzeUniverse()">
+            🔄 AI重新分析
+        </button>
 
-        </div>
+        <button
+            class="report-btn">
+            📄 导出报告
+        </button>
+
+        <button
+            class="report-btn">
+            🔗 分享
+        </button>
 
     </div>
 
