@@ -1102,6 +1102,91 @@
     cursor: pointer;
     font-size: 13px;
 }
+        /* AI Report Footer */
+
+.report-actions{
+
+    margin-top:42px;
+
+    margin-bottom:10px;
+
+    text-align:center;
+
+}
+
+.report-divider{
+
+    width:90px;
+
+    height:1px;
+
+    margin:0 auto 26px;
+
+    background:#dbe5ef;
+
+}
+
+.report-footer-title{
+
+    font-size:18px;
+
+    font-weight:700;
+
+    color:#0f172a;
+
+}
+
+.report-footer-desc{
+
+    margin-top:8px;
+
+    color:#64748b;
+
+    font-size:14px;
+
+}
+
+.report-action-buttons{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:14px;
+
+    margin-top:24px;
+
+    flex-wrap:wrap;
+
+}
+
+.report-btn{
+
+    padding:10px 18px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#f8fafc;
+
+    color:#334155;
+
+    cursor:pointer;
+
+    font-size:15px;
+
+    transition:.2s;
+
+}
+
+.report-btn:hover{
+
+    background:#eef6ff;
+
+    color:#2563eb;
+
+}
     </style>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
@@ -1231,38 +1316,6 @@
         </section>
 
        <section id="view-insights" class="view-section">
-<div class="insights-toolbar">
-
-<div class="insights-actions">
-
-    <button
-        class="toolbar-btn"
-        onclick="reAnalyzeUniverse()">
-
-        🔄
-        <span>AI重新分析</span>
-
-    </button>
-
-    <button
-        class="toolbar-btn">
-
-        📄
-        <span>导出报告</span>
-
-    </button>
-
-    <button
-        class="toolbar-btn">
-
-        🔗
-        <span>分享</span>
-
-    </button>
-
-</div>
-
-    </div>
 
     <div class="insights-grid">
                 <div class="insight-card">
@@ -1327,6 +1380,49 @@
                     </div>
                     <p class="report-paragraph" id="report-ceremony-text"></p>
                 </div>
+         <div class="report-actions">
+
+    <div class="report-divider"></div>
+
+    <div class="report-footer-title">
+
+        ✨ AI 阅读报告已生成
+
+    </div>
+
+    <div class="report-footer-desc">
+
+        基于你的阅读宇宙自动生成，可重新分析、导出或分享。
+
+    </div>
+
+    <div class="report-action-buttons">
+
+        <button
+            class="report-btn"
+            onclick="reAnalyzeUniverse()">
+
+            🔄 AI重新分析
+
+        </button>
+
+        <button
+            class="report-btn">
+
+            📄 导出报告
+
+        </button>
+
+        <button
+            class="report-btn">
+
+            🔗 分享
+
+        </button>
+
+    </div>
+
+</div>
 
             </div>
         </section>
